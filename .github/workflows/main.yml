@@ -2,29 +2,33 @@ name: Semgrep Scan
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
-    branches: [main]
+    branches: [master]
 
 jobs:
-  gitleaks:
+  semgrep:
     runs-on: ubuntu-latest
     permissions:
-      contents: read       
-      security-events: write  
+      contents: read
+      security-events: write
+      actions: read
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Run Semgrep via Docker
+      - name: Run Semgrep SAST only
         run: |
           docker run --rm \
-            -v ${{ github.workspace }}:/src \
-            semgrep/semgrep semgrep scan \
-            --sarif-output=semgrep.sarif \
-            --validate --config=auto /src
-      
+            -v "${{ github.workspace }}:/src" \
+            semgrep/semgrep:1.92.0 semgrep scan \
+            --config p/security-audit \
+            --jobs 1 \
+            --max-memory 3500 \
+            --exclude node_modules \
+            --exclude dist \
+            --exclude build \
+            --exclude .git \
+            --sarif-output=/src/semgrep.sarif /src
+
       - name: Upload SARIF report as Artifact
         uses: actions/upload-artifact@v4
         with:
