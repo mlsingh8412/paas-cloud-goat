@@ -1,4 +1,4 @@
-public without sharing class XML1 {
+public class XML1 {
     public String retrievalUrl{get; set;} {
         StaticResource sr_xmlstatic_resource = [SELECT Id FROM StaticResource WHERE Name = 'xml_xxe_xml' LIMIT 1];
         
